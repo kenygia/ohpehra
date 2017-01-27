@@ -24,5 +24,3 @@ fclean: clean
 	$(RM) $(NAME)
 
 .PHONY: all clean fclean
-
-include makefile.dep
