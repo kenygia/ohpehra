@@ -1,4 +1,4 @@
-NAME=pawnee
+NAME=lightbearer
 CC=gcc
 CFLAGS= -Wall -W -Werror -g
 LDFLAGS=
