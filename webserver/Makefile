@@ -1,6 +1,6 @@
 NAME=lightbearer
 CC=gcc
-CFLAGS= -Wall -W -Werror -g
+CFLAGS= -Wall -W -Werror -g -O
 LDFLAGS=
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
