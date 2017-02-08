@@ -12,15 +12,15 @@
 int main(void/*int argc, char **argv*/)
 {
   int socket_srv4;
-  int socket_srv6;
+  //int socket_srv6;
   int socket_client4;
-  int socket_client6;
+  //int socket_client6;
   char recvBuff[1024];
-  int pid4;
-  int pid6;
-  int n;
   char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
 
+  int pid4;
+  //int pid6;
+  int n;
   n = 0;
   pid4 = fork();
   printf("fils4:%d\n", pid4);
@@ -39,12 +39,14 @@ int main(void/*int argc, char **argv*/)
       return -1;
     }
 
+    sleep(1);
+    
     if (write(socket_client4, welcome, strlen(welcome)) == -1)
     {
       perror("write4_welcome");
     }
 
-    while ((n = read(socket_client4, recvBuff, sizeof(recvBuff)-1)) == -1)
+    while ((n = read(socket_client4, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
       recvBuff[n] = 0;
       if (write(socket_client4, recvBuff, strlen(recvBuff)) == -1)
@@ -54,11 +56,12 @@ int main(void/*int argc, char **argv*/)
       if(fputs(recvBuff, stdout) == EOF)
       {
           printf("nope4");
-          exit(0);
+          //exit(0);
       }
     }
   }
 
+/*
   pid6 = fork();
   printf("fils6:%d\n", pid6);
   if (pid6 == 0)
@@ -75,7 +78,7 @@ int main(void/*int argc, char **argv*/)
       perror("accept6 error");
       return -1;
     }
-    while ((n = read(socket_client6, recvBuff, sizeof(recvBuff)-1)) == -1)
+    while ((n = read(socket_client6, recvBuff, sizeof(recvBuff)-1)) > 0)
     {
     if (write(socket_client6, recvBuff, strlen(recvBuff)) == -1)
     {
@@ -89,6 +92,7 @@ int main(void/*int argc, char **argv*/)
       }
     }
   }
+*/
 
 
 
