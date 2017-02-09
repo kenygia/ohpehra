@@ -93,8 +93,9 @@ int main(void/*int argc, char **argv*/)
       }
     }
   }
+
 wait(NULL);
-wait(NULL)
+wait(NULL);
 
 
 
