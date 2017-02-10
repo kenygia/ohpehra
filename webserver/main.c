@@ -10,17 +10,27 @@
 #include <sys/wait.h>
 #include "socket.h"
 
+void initialiser_signaux(void)
+{
+  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+  {
+    perror("signal");
+  }
+}
+
 int main(void/*int argc, char **argv*/)
 {
   int socket_srv4;
-  int socket_srv6;
+  //int socket_srv6;
   int socket_client4;
-  int socket_client6;
+  //int socket_client6;
   char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
-
   int pid4;
-  int pid6;
+  //int pid6;
   int n;
+
+  initialiser_signaux();
+
   n = 0;
   pid4 = fork();
   printf("fils4:%d\n", pid4);
@@ -33,6 +43,7 @@ int main(void/*int argc, char **argv*/)
       perror("create socket4 error");
       return -1;
     }
+
     socket_client4 = accept(socket_srv4, NULL, NULL);
     if (socket_client4 == -1)
     {
@@ -62,7 +73,7 @@ int main(void/*int argc, char **argv*/)
     }
   }
 
-
+/*
   pid6 = fork();
   printf("fils6:%d\n", pid6);
   if (pid6 == 0)
@@ -94,11 +105,9 @@ int main(void/*int argc, char **argv*/)
       }
     }
   }
-
+*/
+//wait(NULL);
 wait(NULL);
-wait(NULL);
-
-
 
   return 0;
  }
