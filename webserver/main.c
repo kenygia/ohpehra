@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "socket.h"
 
 int main(void/*int argc, char **argv*/)
