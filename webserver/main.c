@@ -12,7 +12,8 @@
 
 void traitement_signal(int sig)
 {
-  printf("Signal %d reçu\n", sig);
+  printf("child %d reçu\n", sig);
+  while(waitpid(-1, &sig, WNOHANG));
 }
 
 void initialiser_signaux(void)
@@ -35,12 +36,12 @@ void initialiser_signaux(void)
 int main(void/*int argc, char **argv*/)
 {
   int socket_srv4;
-  int socket_srv6;
+  //int socket_srv6;
   int socket_client4;
-  int socket_client6;
+  //int socket_client6;
   char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
   pid_t pid4;
-  pid_t pid6;
+  //pid_t pid6;
   int n;
 
   initialiser_signaux();
@@ -91,7 +92,7 @@ int main(void/*int argc, char **argv*/)
     exit(0);
   }
 
-
+/*
 pid6 = fork();
 printf("fils6:%d\n", pid6);
 if (pid6 == 0)
@@ -136,7 +137,7 @@ if (pid6 == 0)
   }
   exit(0);
 }
-
+*/
 wait(NULL);
 wait(NULL);
 
