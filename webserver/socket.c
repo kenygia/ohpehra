@@ -13,7 +13,7 @@ int create_socket4(int port)
   int sockfd;
   struct sockaddr_in srv_addr;
   int mode;
-  int optval;
+  int opt_reuseadddr;
 
   mode = 1;
   srv_addr.sin_family = AF_INET;
@@ -46,8 +46,8 @@ int create_socket4(int port)
     return -1;
   }
 
-  optval = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
+  opt_reuseadddr = 1;
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_reuseadddr, sizeof(int)) == -1)
   {
     perror("Can not set SO_REUSEADDR option4");
     return -1;
@@ -60,7 +60,7 @@ int create_socket6(int port)
 {
   int sockfd;
   struct sockaddr_in6 srv_addr;
-  int optval;
+  int opt_reuseadddr;
 
   srv_addr.sin6_family = AF_INET6;
   srv_addr.sin6_addr = in6addr_any;
@@ -74,8 +74,8 @@ int create_socket6(int port)
     return -1;
   }
 
-  optval = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int)) == -1)
+  opt_reuseadddr = 1;
+  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt_reuseadddr, sizeof(int)) == -1)
   {
     perror("Can not set SO_REUSEADDR option6");
     return -1;
