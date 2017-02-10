@@ -44,33 +44,38 @@ int main(void/*int argc, char **argv*/)
       return -1;
     }
 
-    socket_client4 = accept(socket_srv4, NULL, NULL);
+    while ((socket_client4 = accept(socket_srv4, NULL, NULL)))
+    {
+      sleep(1);
+      if(fork() == 0)
+      {
+        if (write(socket_client4, welcome, strlen(welcome)) == -1)
+        {
+          perror("write4_welcome");
+        }
+
+        while ((n = read(socket_client4, recvBuff, sizeof(recvBuff)-1)) > 0)
+        {
+          recvBuff[n] = 0;
+          if (write(socket_client4, recvBuff, strlen(recvBuff)) == -1)
+          {
+            perror("write4");
+          }
+          if(fputs(recvBuff, stdout) == EOF)
+          {
+              printf("nope4");
+              exit(0);
+          }
+        }
+      }
+    }
     if (socket_client4 == -1)
     {
       perror("accept4 error");
       return -1;
     }
 
-    sleep(1);
 
-    if (write(socket_client4, welcome, strlen(welcome)) == -1)
-    {
-      perror("write4_welcome");
-    }
-
-    while ((n = read(socket_client4, recvBuff, sizeof(recvBuff)-1)) > 0)
-    {
-      recvBuff[n] = 0;
-      if (write(socket_client4, recvBuff, strlen(recvBuff)) == -1)
-      {
-        perror("write4");
-      }
-      if(fputs(recvBuff, stdout) == EOF)
-      {
-          printf("nope4");
-          exit(0);
-      }
-    }
   }
 
 /*
