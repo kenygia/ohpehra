@@ -11,7 +11,7 @@ RM=rm -f
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJ) main.c
 	@$(CC) $(CFLAGS) $(LDFLAGS) $(OBJ) -o $(NAME)
 
 %.o: %.c

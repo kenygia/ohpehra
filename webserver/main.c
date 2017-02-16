@@ -12,7 +12,7 @@
 
 void traitement_signal(int sig)
 {
-  printf("child %d reçu\n", sig);
+  printf("child %d \n", sig);
   while(waitpid(-1, &sig, WNOHANG));
 }
 
@@ -20,70 +20,73 @@ void initialiser_signaux(void)
 {
   struct sigaction sa;
 
+  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+  {
+    perror("signal");
+  }
+
   sa.sa_handler = traitement_signal;
   sigemptyset(&sa.sa_mask); sa.sa_flags = SA_RESTART;
   if (sigaction(SIGCHLD, &sa, NULL) == -1)
   {
     perror("sigaction(SIGCHLD)");
   }
-
-  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
-  {
-    perror("signal");
-  }
 }
 
-int main(void/*int argc, char **argv*/)
+int socket_field(int version)
 {
-  int socket_srv4;
-  //int socket_srv6;
-  int socket_client4;
-  //int socket_client6;
-  char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
-  pid_t pid4;
-  //pid_t pid6;
   int n;
-
-  initialiser_signaux();
+  pid_t pid;
+  int socket_srv;
+  int socket_client;
+  char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
 
   n = 0;
-  pid4 = fork();
-  printf("fils4:%d\n", pid4);
-  if (pid4 == 0)
+  pid = fork();
+  printf("child:%d\n", pid);
+  if (pid == 0)
   {
     char recvBuff[1024];
-    socket_srv4 = create_socket4(8080);
-    if (socket_srv4 == -1)
+    if (version == 4)
+      socket_srv = create_socket4(8080);
+    else if (version == 6)
+      socket_srv = create_socket6(8080);
+    else
+      socket_srv = -1;
+
+    if (socket_srv == -1)
     {
       perror("create socket4 error");
       return -1;
     }
 
-    while ((socket_client4 = accept(socket_srv4, NULL, NULL)))
+    while ((socket_client = accept(socket_srv, NULL, NULL)))
     {
-      if (socket_client4 == -1)
+      if (socket_client == -1)
       {
-        perror("accept4 error");
+        perror("accept error");
         return -1;
       }
       sleep(1);
       if(fork() == 0)
       {
-        if (write(socket_client4, welcome, strlen(welcome)) == -1)
+        if (write(socket_client, welcome, strlen(welcome)) == -1)
         {
-          perror("write4_welcome");
+          perror("write_welcome");
+          return -1;
         }
 
-        while ((n = read(socket_client4, recvBuff, sizeof(recvBuff)-1)) > 0)
+        while ((n = read(socket_client, recvBuff, sizeof(recvBuff)-1)) > 0)
         {
           recvBuff[n] = 0;
-          if (write(socket_client4, recvBuff, strlen(recvBuff)) == -1)
+          if (write(socket_client, recvBuff, strlen(recvBuff)) == -1)
           {
-            perror("write4");
+            perror("write");
+            return -1;
           }
           if(fputs(recvBuff, stdout) == EOF)
           {
-              printf("nope4");
+              printf("nope");
           }
         }
         exit(0);
@@ -91,55 +94,21 @@ int main(void/*int argc, char **argv*/)
     }
     exit(0);
   }
-
-/*
-pid6 = fork();
-printf("fils6:%d\n", pid6);
-if (pid6 == 0)
-{
-  char recvBuff[1024];
-  socket_srv6 = create_socket6(8080);
-  if (socket_srv6 == -1)
-  {
-    perror("create socket6 error");
-    return -1;
-  }
-
-  while ((socket_client6 = accept(socket_srv6, NULL, NULL)))
-  {
-    if (socket_client6 == -1)
-    {
-      perror("accept6 error");
-      return -1;
-    }
-    sleep(1);
-    if(fork() == 0)
-    {
-      if (write(socket_client6, welcome, strlen(welcome)) == -1)
-      {
-        perror("write6_welcome");
-      }
-
-      while ((n = read(socket_client6, recvBuff, sizeof(recvBuff)-1)) > 0)
-      {
-        recvBuff[n] = 0;
-        if (write(socket_client6, recvBuff, strlen(recvBuff)) == -1)
-        {
-          perror("write6");
-        }
-        if(fputs(recvBuff, stdout) == EOF)
-        {
-            printf("nope6");
-        }
-      }
-      exit(0);
-    }
-  }
-  exit(0);
+  return 0;
 }
-*/
-wait(NULL);
-wait(NULL);
 
+int main(void/*int argc, char **argv*/)
+{
+
+  initialiser_signaux();
+
+  int sock4 = socket_field(4);
+  printf("%d\n", sock4);
+
+//  int sock6 = socket_field(6);
+//  printf("%d\n", sock6);
+
+  wait(NULL);
+//  wait(NULL);
   return 0;
  }
