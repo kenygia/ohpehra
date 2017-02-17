@@ -12,8 +12,8 @@
 
 void traitement_signal(int sig)
 {
-  printf("child %d \n", sig);
-  while(waitpid(-1, &sig, WNOHANG));
+  printf("child_sig:%d \n", sig);
+  while(waitpid(-1, NULL, WNOHANG));
 }
 
 void initialiser_signaux(void)
@@ -42,58 +42,57 @@ int socket_field(int version)
   char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
 
   n = 0;
-  pid = fork();
-  printf("child:%d\n", pid);
-  if (pid == 0)
-  {
-    char recvBuff[1024];
-    if (version == 4)
-      socket_srv = create_socket4(8080);
-    else if (version == 6)
-      socket_srv = create_socket6(8080);
-    else
-      socket_srv = -1;
+  char buff[1024];
+  if (version == 4)
+    socket_srv = create_socket4(8080);
+  else if (version == 6)
+    socket_srv = create_socket6(8080);
+  else
+    socket_srv = -1;
 
-    if (socket_srv == -1)
+  if (socket_srv == -1)
+  {
+    perror("create socket4 error");
+    return -1;
+  }
+
+  while ((socket_client = accept(socket_srv, NULL, NULL)))
+  {
+    if (socket_client == -1)
     {
-      perror("create socket4 error");
+      if(errno == EINTR)
+        continue;
+      perror("accept error");
       return -1;
     }
+    sleep(1);
 
-    while ((socket_client = accept(socket_srv, NULL, NULL)))
+    pid = fork();
+    printf("child:%d\n", pid);
+    if(pid == 0)
     {
-      if (socket_client == -1)
+      if (write(socket_client, welcome, strlen(welcome)) == -1)
       {
-        perror("accept error");
+        perror("write_welcome");
         return -1;
       }
-      sleep(1);
-      if(fork() == 0)
+
+
+      while ((n = read(socket_client, buff, sizeof(buff)-1)) > 0)
       {
-        if (write(socket_client, welcome, strlen(welcome)) == -1)
+        buff[n] = 0;
+        if (write(socket_client, buff, strlen(buff)) == -1)
         {
-          perror("write_welcome");
+          perror("write");
           return -1;
         }
 
-        while ((n = read(socket_client, recvBuff, sizeof(recvBuff)-1)) > 0)
-        {
-          recvBuff[n] = 0;
-          if (write(socket_client, recvBuff, strlen(recvBuff)) == -1)
-          {
-            perror("write");
-            return -1;
-          }
-          if(fputs(recvBuff, stdout) == EOF)
-          {
-              printf("nope");
-          }
-        }
-        exit(0);
       }
+      close(socket_client);
+      exit(0);
     }
-    exit(0);
   }
+
   return 0;
 }
 
@@ -108,7 +107,7 @@ int main(void/*int argc, char **argv*/)
 //  int sock6 = socket_field(6);
 //  printf("%d\n", sock6);
 
-  wait(NULL);
+//  wait(NULL);
 //  wait(NULL);
   return 0;
  }
