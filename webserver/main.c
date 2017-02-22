@@ -88,10 +88,10 @@ int socket_field(int version)
         }
 
       }
-      close(socket_client);
       exit(0);
     }
   }
+  close(socket_client);
 
   return 0;
 }
@@ -107,7 +107,5 @@ int main(void/*int argc, char **argv*/)
 //  int sock6 = socket_field(6);
 //  printf("%d\n", sock6);
 
-//  wait(NULL);
-//  wait(NULL);
   return 0;
  }
