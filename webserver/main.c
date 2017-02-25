@@ -35,13 +35,12 @@ void initialiser_signaux(void)
 
 int socket_field(int version)
 {
-  int n;
   pid_t pid;
   int socket_srv;
-  int socket_client;
+  int socket_cli;
+  FILE *sockfd;
   char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
 
-  n = 0;
   char buff[1024];
   if (version == 4)
     socket_srv = create_socket4(8080);
@@ -56,34 +55,42 @@ int socket_field(int version)
     return -1;
   }
 
-  while ((socket_client = accept(socket_srv, NULL, NULL)))
+  while ((socket_cli = accept(socket_srv, NULL, NULL)))
   {
-    if (socket_client == -1)
+    if (socket_cli == -1)
     {
       if(errno == EINTR)
         continue;
       perror("accept error");
       return -1;
     }
+
+    sockfd = fdopen(socket_cli,"w+");
+
     sleep(1);
 
     pid = fork();
     printf("child:%d\n", pid);
     if(pid == 0)
     {
-      if (write(socket_client, welcome, strlen(welcome)) == -1)
+      if (fprintf(sockfd, "%s",welcome) < 0)
       {
-        perror("write_welcome");
+        perror("fprintf_welcome");
         return -1;
       }
 
 
-      while ((n = read(socket_client, buff, sizeof(buff)-1)) > 0)
+      while (fgets(buff, sizeof(buff)-1, sockfd) != NULL)
       {
-        buff[n] = 0;
-        if (write(socket_client, buff, strlen(buff)) == -1)
+        if (fprintf(sockfd, "<Light House> ") < 0 )
         {
-          perror("write");
+          perror("fprintf_prefix");
+          return -1;
+        }
+
+        if (fprintf(sockfd, "%s",buff) < 0 )
+        {
+          perror("fprintf");
           return -1;
         }
 
@@ -91,7 +98,7 @@ int socket_field(int version)
       exit(0);
     }
   }
-  close(socket_client);
+  close(socket_cli);
 
   return 0;
 }
