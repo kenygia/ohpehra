@@ -4,34 +4,12 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "socket.h"
-
-void traitement_signal(int sig)
-{
-  printf("child_sig:%d \n", sig);
-  while(waitpid(-1, NULL, WNOHANG));
-}
-
-void initialiser_signaux(void)
-{
-  struct sigaction sa;
-
-  if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
-  {
-    perror("signal");
-  }
-
-  sa.sa_handler = traitement_signal;
-  sigemptyset(&sa.sa_mask); sa.sa_flags = SA_RESTART;
-  if (sigaction(SIGCHLD, &sa, NULL) == -1)
-  {
-    perror("sigaction(SIGCHLD)");
-  }
-}
+#include "signal.h"
+#include "parse.h"
 
 int socket_field(int version)
 {
@@ -39,7 +17,6 @@ int socket_field(int version)
   int socket_srv;
   int socket_cli;
   FILE *sockfd;
-  //char welcome[256] = "Ohayo\nTire au Lapin\nChasseur chassant chausette\nWill Crappy creep\nFreddy les griffe du night\ndeja a cours d'idee\nunicode plz (づ◔ ͜ʖ◔)づ\nsocketv6 marche steup ( ﾟロ ﾟ)\nla magie du gwak (∩ ͡°ᴥ ͡°)⊃━☆ﾟ.*\nNOTHING¯\\_ツ_/¯\n\0";
 
   char buff[1024];
   if (version == 4)
@@ -51,7 +28,7 @@ int socket_field(int version)
 
   if (socket_srv == -1)
   {
-    perror("create socket4 error");
+    perror("create socket error");
     return -1;
   }
 
@@ -72,16 +49,10 @@ int socket_field(int version)
     pid = fork();
     printf("child:%d\n", pid);
     if(pid == 0)
-    {/*
-      if (fprintf(sockfd, "%s",welcome) < 0)
-      {
-        perror("fprintf_welcome");
-        return -1;
-      }
-*/
-
+    {
       while (fgets(buff, sizeof(buff)-1, sockfd) != NULL)
-      {/*
+      {
+/*
         if (fprintf(sockfd, "<Light House> ") < 0 )
         {
           perror("fprintf_prefix");
@@ -92,7 +63,8 @@ int socket_field(int version)
         {
           perror("fprintf");
           return -1;
-        }*/
+        }
+*/
         printf("%s\n", buff);
       }
       exit(0);
@@ -105,7 +77,7 @@ int socket_field(int version)
 
 int main(void/*int argc, char **argv*/)
 {
-
+  printf("Light House - Ohpehra\r\n");
   initialiser_signaux();
 
   int sock4 = socket_field(4);
